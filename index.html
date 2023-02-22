@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>PAC-MAN</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <script src="scripts/app.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <main>
+      <section class = "panels">
+        <div class ="left-panel">
+          <div class = "logo-container">
+            <img class = "logo-image" src="assets/logo.png">
+          </div>
+          <div class="game-instructions">
+            <h2> INSTRUCTIONS </h2>
+            <p>Use arrow keys to move Pac-Man around the maze.</p>
+            <p>Eat all pellets to win.</p> 
+            <p>Ghosts will make you lose a life if they touch you, so be careful!</p>
+            <p>Power pellets turn ghosts blue and allow you to eat them for points and send them back to their cell.</p>
+            <p>Collect fruit for extra points.</p>
+            <p>Have fun!</p>
+          </div>
+          <div class="start-button-container">
+            <button class ="start-button">PLAY</button>
+          </div>
+        </div>
+        <div class ="right-panel">
+          <div class ="score-container">
+            <p class="score-paragraph">SCORE: 
+              <span class = "score">0</span>
+            </p> 
+          </div>
+          <div class="grid-wrapper">
+            <div class="grid"></div>
+          </div>
+          <div class="lives-and-fruit-container">
+            <p class="lives-paragraph">LIVES:  <span class="lives"></span></p>
+            <div class="fruit-collected-container">
+              <p class="fruit-paragraph">FRUIT:
+                <!-- <span class="fruit"></span> -->
+              </p>
+              <img class="fruit">
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

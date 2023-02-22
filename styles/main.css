@@ -1,0 +1,214 @@
+* {
+  box-sizing: border-box;
+}
+
+body, .start-button {
+  font-family: 'Press Start 2P', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  background-color: black;
+  color: white;
+}
+
+body{
+  display: flex;
+  align-items: center;
+}
+
+/* TWO-PANEL SECTION */
+
+.panels {
+  display: flex;
+  justify-content: center;
+  
+}
+
+.left-panel {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.right-panel{
+  flex-grow: 2;
+  padding: 20px;
+}
+
+/* LEFT PANEL LAYOUT */
+
+.left-panel{
+  max-width: 500px;
+}
+
+.logo-container{
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.logo-image{
+  width: 350px;
+}
+
+.game-instructions{
+  margin-top: 100px;
+  font-size: smaller;
+  text-align: center;
+}
+
+h2{
+  margin-bottom: 30px;
+}
+
+.start-button-container{
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.start-button{
+  width: 110px;
+  height: 30px;
+  color:#fed111;
+  background-color:#f08626;
+  box-shadow: 0 0 0 2px black, 0 0 0 4.5px #e7242a;
+  -webkit-text-stroke: 1.2px black;
+  text-shadow: -1.2px -1.2px 0 white, -2.3px -1.5px 0 black, 2px 1px 0 #2f196e, 2.5px 1.8px 0 black;
+  font-size: x-large;
+  border: none;
+  border-radius: 2px;
+  padding: 20px;
+}
+
+.start-button:active {
+  transform: translateY(2px);
+  background-color: #efa867;
+  box-shadow: 0 0 0 2px black, 0 0 0 4.5px #e34c51;
+}
+
+/* RIGHT PANEL LAYOUT */
+
+.right-panel{
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.grid {
+  align-items: center;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  height: 680px;
+  width: 620px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: x-small;
+}
+
+.grid div {
+  border: 0.3px solid black;
+  height: 3.55%;
+  width: 3.55%;
+}
+
+.score-container{
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.lives-and-fruit-container{
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+/* MAZE */
+
+.wall {
+  background-color: #0133ff;
+}
+
+.off-limits-index {
+  background-color :black;
+
+}
+.ghost-house {
+  background-color: black;
+}
+
+.ghost-house-border{
+  background-color: black
+}
+
+div.ghost-house-border{
+  border-top: 1px solid white;
+}
+
+/* PELLETS */
+
+.pellet{
+  background-image: radial-gradient(#ffff 13%, #0000 10%);
+} 
+
+/* POWER PELLETS */
+
+.power-pellet{
+  background-image: radial-gradient(#ffff 26%, #0000 10%);
+} 
+
+/* PAC-MAN */
+
+.pac-man {
+  background-image: url(../assets/pacman.png); 
+  background-size: 100%;
+  background-position: center;
+}
+
+
+.move-left{
+  transform: none;
+}
+
+.move-right{
+  transform: rotate(180deg);
+}
+
+.move-up{
+  transform: rotate(90deg);
+}
+
+.move-down{
+  transform: rotate(-90deg);
+}
+
+/* GHOSTS */
+
+.blinky {
+  background-image: url(../assets/blinky.png); 
+  background-size: 100%;
+  background-position: center;
+}
+.inky {
+  background-image: url(../assets/inky.png); 
+  background-size: 100%;
+  background-position: center;
+}
+.pinky {
+  background-image: url(../assets/pinky.png); 
+  background-size: 100%;
+  background-position: center;
+}
+.clyde {
+  background-image: url(../assets/clyde.png); 
+  background-size: 100%;
+  background-position: center;
+}
