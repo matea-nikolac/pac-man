@@ -971,6 +971,7 @@ function init() {
         audio.play()
         cells[currentPosition].classList.remove('cherry')
         score += cherryPoints
+        scoreSpan.innerHTML = score
         const fruitImg = document.createElement('img')
         fruitImg.src = 'assets/cherry.webp'
         fruitImg.alt = 'cherry'
