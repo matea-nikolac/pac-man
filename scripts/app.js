@@ -22,6 +22,7 @@ function init() {
   const livesSpan = document.querySelector('.lives')
   const scoreSpan = document.querySelector('.score')
 
+
   // select the fruit, lives and score paragraph from the HTML document
   const fruitParagraph = document.querySelector('.fruit-paragraph')
   const livesParagraph = document.querySelector('.lives-paragraph')
@@ -38,43 +39,102 @@ function init() {
   const inkyStartIndex = 405
   const pinkyStartIndex = 406
   const clydeStartIndex = 407
+  const fruitIndex = 461
 
-  // define pac-man's current position
+  // define the current position of pac-man
   let currentPosition = pacmanStartIndex
 
-  // define ghosts' current position
+  // define the current position of the ghosts
   let currentGhostPositions = {
     blinky: blinkyStartIndex,
     inky: inkyStartIndex,
     pinky: pinkyStartIndex,
-    clyde: clydeStartIndex
+    clyde: clydeStartIndex,
+    vulnerableblinky: blinkyStartIndex,
+    vulnerablebleinky: inkyStartIndex,
+    vulnerableblepinky: pinkyStartIndex,
+    vulnerableclyde: clydeStartIndex
   }
-  // ghosts' current position
+
+  // define ghost names and classes
+  const ghostNames = ['blinky', 'inky', 'pinky', 'clyde']
+  const vulnerableGhostNames = ['vulnerableblinky', 'vulnerableinky', 'vulnerablepinky', 'vulnerableclyde']
+  let ghostClassName
+  let originalClassName
+
+  // define ghost vulnerability
+
+  const isVulnerable = {
+    blinky: false,
+    inky: false,
+    pinky: false,
+    clyde: false,
+    vulnerableblinky: false,
+    vulnerableinky: false,
+    vulnerablepinky: false,
+    vulnerableclyde: false,
+  }
+
+  let vulnerable = false
+  let vulnerableTimeout
+
+  // define ghosts' current direction
   let currentGhostDirection = {
     blinky: null,
     inky: null,
     pinky: null,
-    clyde: null
+    clyde: null,
+    vulnerableblinky: null,
+    vulnerablebleinky: null,
+    vulnerableblepinky: null,
+    vulnerableclyde: null
   }
 
-  // define lives left and score
-  const livesLeft = 3
-  const score = 0
+// define ghosts' start indexes
+  const ghostStartIndexes = {
+    blinky: 293,
+    inky: 405,
+    pinky: 406,
+    clyde: 407
+  }
+
+  // define and display lives andscore
+  let livesLeft = 3
+  let score = 0
+  scoreSpan.innerHTML = score
+
+   // count the pellets
+  let pelletsCount = 0
+
+  // define pellet, power pellet and fruit points
+  let pelletPoints = 100
+  const powerPelletPoints = [200, 400, 800, 1600]
+  const vulnerableGhostPoints = [200, 400, 800, 1600]
+  const cherryPoints = 100
+
+ // define power pellet and vlunerableghost indexes
+  let powerPelletIndex = 0
+  let vulnerableGhostIndex = 0
+
 
   // define available directions for ghosts
   const directions = ['left', 'right', 'up', 'down']
 
-  // define available fruit
-  const fruits = [
-    'cherry.webp',
-    'strawberry.webp'
-  ]
   // declare pac-man timer variable 
   let timer
 
+
+  // gamePlay timeouts
+  let timeouts = []
+  let gamePlayTimeout
+  let beginningTimeout
+
+  // moveFromGhostHouse timeouts
+  let ghostHouseTimeouts = []
+
   // declare timer variable for ghosts
-  const timerGhosts = {}
-  const ghostHouseTimer = {}
+  let timerGhosts = {}
+  let ghostHouseTimer = {}
 
   // hide score, lives left and fruit before "start" is clicked
   fruitParagraph.style.visibility = 'hidden'
@@ -82,10 +142,11 @@ function init() {
   scoreParagraph.style.visibility = 'hidden'
 
 
+  let pelletsIndex 
+
   // ! Create Grid
 
   function createGrid(){
-    console.log('Grid created!')
     const cell = document.createElement('div')
 
     // create the grid
@@ -99,7 +160,6 @@ function init() {
  // ! Assign positions to maze elements
 
     // Assign positions to the wall class
-
     wallIndex.forEach(index => {
       cells[index]?.classList.add('wall')
     })
@@ -120,7 +180,7 @@ function init() {
     })
 
      // Assign positions to the pellet class
-    const pelletsIndex = cells.filter(element => {
+    pelletsIndex = cells.filter(element => {
       return !element.classList.contains('wall') 
         && !element.classList.contains('off-limits-index') 
         && !element.classList.contains('ghost-house')
@@ -134,7 +194,17 @@ function init() {
     // Assign positions to the power-pellets class
     powerPelletsIndex.forEach(index => {
       cells[index]?.classList.add('power-pellet')
+      cells[index]?.classList.remove('pellet')
     })
+
+    // add pac-man images
+    for (let i = 0; i < livesLeft; i++) {
+      const pacmanImg = document.createElement('img');
+      pacmanImg.src = 'assets/pacman.png';
+      pacmanImg.alt = 'pacman';
+      pacmanImg.classList.add('pac-man-lives-image');
+      livesSpan.appendChild(pacmanImg);
+    }
 
     // ! Assign initial positions to characters
 
@@ -155,6 +225,9 @@ function init() {
 
   function gamePlay() {
 
+    const audio = new Audio('sounds/pacman_beginning.wav')
+    audio.play()
+
     // disable the start button so that a new grid cannot be created if it is clicked again
     start.disabled = true
 
@@ -163,33 +236,22 @@ function init() {
     livesParagraph.style.visibility = 'visible'
     scoreParagraph.style.visibility = 'visible'
 
-    // add event listener for arrow key press
-    document.addEventListener('keydown', movePacman)
-
-  
-    moveGhosts('blinky')
-
-    setTimeout(() => {
+    beginningTimeout = setTimeout(() => {
+      moveGhosts('blinky')
       moveFromGhostHouse('pinky')
-    }, 1000)
-    
-
-    setTimeout(() => {
       moveFromGhostHouse('inky')
-    }, 3000)
+      moveFromGhostHouse('clyde')
+
+      // add event listener for arrow key press
+      document.addEventListener('keydown', movePacman)
+      
+    }, 4000)
 
     setTimeout(() => {
-      moveFromGhostHouse('clyde')
-    }, 5000)
+      clearTimeout(beginningTimeout)
+    }, 4001)
 
-    // moveGhosts('pinky')
-    // moveGhosts('clyde')
-
-    // addFruit()
-    // checkPelletCollisions()
-    // checkPowerPelletCollisions()
-    // checkGhostCollisions()
-
+    addFruit()
   }
 
   function movePacman(event){
@@ -202,7 +264,6 @@ function init() {
 
     cells[currentPosition].classList.remove('pac-man')
 
-
     if (event.keyCode === right && cells[currentPosition+1].classList.contains('wall')!== true){
       clearInterval(timer)
 
@@ -213,14 +274,21 @@ function init() {
           currentPosition = 364
           cells[currentPosition].classList.add('pac-man')
           cells[currentPosition].classList.add('move-right')
+          checkPelletCollisions()
+          checkPowerPelletCollisions()
+          checkFruitCollisions()
+          checkGhostCollisions()
 
         } else if (!cells[currentPosition + 1].classList.contains('wall') && !cells[currentPosition + 1].classList.contains('ghost-house-border')){
           cells[currentPosition].classList.remove('pac-man')
           cells[currentPosition].classList.remove('move-right', 'move-left', 'move-up', 'move-down')
           currentPosition++
-          console.log('CURRENT POSITION', currentPosition)
           cells[currentPosition].classList.add('pac-man')
           cells[currentPosition].classList.add('move-right')
+          checkPelletCollisions()
+          checkPowerPelletCollisions()
+          checkFruitCollisions()
+          checkGhostCollisions()
         } 
     }, 220)
 
@@ -233,12 +301,21 @@ function init() {
           currentPosition = 391
           cells[currentPosition].classList.add('pac-man')
           cells[currentPosition].classList.add('move-left')
+          checkPelletCollisions()
+          checkPowerPelletCollisions()
+          checkFruitCollisions()
+          checkGhostCollisions()
+
         } else if (!cells[currentPosition - 1].classList.contains('wall') && !cells[currentPosition - 1].classList.contains('ghost-house-border')){
           cells[currentPosition].classList.remove('pac-man')
           cells[currentPosition].classList.remove('move-right', 'move-left', 'move-up', 'move-down')
           currentPosition--
           cells[currentPosition].classList.add('pac-man')
           cells[currentPosition].classList.add('move-left')
+          checkPelletCollisions()
+          checkPowerPelletCollisions()
+          checkFruitCollisions()
+          checkGhostCollisions()
         }
     }, 220)
     } else if (event.keyCode === up && cells[currentPosition-width].classList.contains('wall')!== true){
@@ -250,9 +327,13 @@ function init() {
           currentPosition -= width
           cells[currentPosition].classList.add('pac-man')
           cells[currentPosition].classList.add('move-up')
+          checkPelletCollisions()
+          checkPowerPelletCollisions()
+          checkFruitCollisions()
+          checkGhostCollisions()
           }
         }, 220)
-    } else if (event.keyCode === down && cells[currentPosition+width].classList.contains('wall')!== true){
+    } else if (event.keyCode === down && cells[currentPosition+width].classList.contains('wall')!== true && cells[currentPosition+width].classList.contains('ghost-house-border')!== true){
       clearInterval(timer)
       timer = setInterval(() => {
         if (!cells[currentPosition + width].classList.contains('wall') && !cells[currentPosition + width].classList.contains('ghost-house-border')){
@@ -261,34 +342,25 @@ function init() {
           currentPosition += width
           cells[currentPosition].classList.add('pac-man')
           cells[currentPosition].classList.add('move-down')
+          checkPelletCollisions()
+          checkPowerPelletCollisions()
+          checkFruitCollisions()
+          checkGhostCollisions()
           }
         }, 220)
-    } else {
-      console.log('KEY INVALID')
-    }
-
-    // cells[currentPosition].classList.add(`move-${event.keyCode}`)
-    // console.log(`move-${event.keyCode}`)
+    } 
 
     cells[currentPosition].classList.add('pac-man')
-  
-
-    // save pacman's new position
-    // make sure pac-man avoids walls
-
-    // --- SET INTERVAL TIMER for the pacman to keep going. 
-    // ---> MAYBE --> add check end game funciton --> call it every time there is a collision
-
-    // checkEnd()
 
   }
 
   function moveGhosts(className){
 
+    if (currentGhostDirection[className]!== true){
+
     let randomDirection = directions[Math.floor(Math.random() * directions.length)]
-    console.log('FIRST DIRECTION:', randomDirection)
     currentGhostDirection[className] = randomDirection
-    
+    }
 
     let leftDirectionOptions
     let randomLeftDirection
@@ -302,16 +374,16 @@ function init() {
     let downDirectionOptions
     let randomDownDirection
 
-    // repeat timerGhost every 1.5 second
+  
+    // repeat timerGhost
     timerGhosts[className] = setInterval(() => {
 
       //GHOST MOVING LEFT
       if (currentGhostDirection[className] == 'left'){
-        console.log('cells[currentGhostPositions[className]].dataset.index -->', cells[currentGhostPositions[className]].dataset.index)
 
         // if ghost is in the cell with index 364
         if (currentGhostPositions[className] === 364){
-          console.log('364 LEFT - MOVING LEFT - CHECKING RIGHT')
+          // console.log('364 LEFT - MOVING LEFT - CHECKING RIGHT')
           randomLeftDirection = 'left'
         }
 
@@ -323,7 +395,7 @@ function init() {
           && !(cells[currentGhostPositions[className] + width].classList.contains('wall'))
           )
             {
-          console.log('WALL LEFT - MOVING LEFT - CHECKING UP, DOWN AND RIGHT')
+          // console.log('WALL LEFT - MOVING LEFT - CHECKING UP, DOWN AND RIGHT')
           leftDirectionOptions = ['up', 'down', 'right']
           randomLeftDirection = leftDirectionOptions[Math.floor(Math.random() * leftDirectionOptions.length)]
           } 
@@ -333,7 +405,7 @@ function init() {
             && (cells[currentGhostPositions[className] + width].classList.contains('wall'))
             )
               {
-            console.log('WALL LEFT - MOVING LEFT - CHECKING UP AND RIGHT')
+            // console.log('WALL LEFT - MOVING LEFT - CHECKING UP AND RIGHT')
             leftDirectionOptions = ['up', 'right']
             randomLeftDirection = leftDirectionOptions[Math.floor(Math.random() * leftDirectionOptions.length)]
           } 
@@ -343,10 +415,9 @@ function init() {
             && !(cells[currentGhostPositions[className] + width].classList.contains('wall'))
             )
               {
-            console.log('WALL LEFT - MOVING LEFT - CHECKING DOWN AND RIGHT')
+            // console.log('WALL LEFT - MOVING LEFT - CHECKING DOWN AND RIGHT')
             leftDirectionOptions = ['down', 'right']
             randomLeftDirection = leftDirectionOptions[Math.floor(Math.random() * leftDirectionOptions.length)]
-            console.log("CHOSEN", randomLeftDirection)
           } 
         } 
         // IF THERE IS NOT A WALL ON THE LEFT
@@ -357,7 +428,7 @@ function init() {
           && (!(cells[currentGhostPositions[className] + width].classList.contains('wall') 
           && !cells[currentGhostPositions[className] + width].classList.contains('ghost-house-border'))
           )){
-            console.log('NO WALL LEFT - MOVING LEFT - CHECKING UP, DOWN AND LEFT')
+            // console.log('NO WALL LEFT - MOVING LEFT - CHECKING UP, DOWN AND LEFT')
             // then go up, down, or continue left
             leftDirectionOptions = ['up', 'down', 'left']
             randomLeftDirection = leftDirectionOptions[Math.floor(Math.random() * leftDirectionOptions.length)]
@@ -368,7 +439,7 @@ function init() {
           && ((cells[currentGhostPositions[className] + width].classList.contains('wall')) 
           || (cells[currentGhostPositions[className] + width].classList.contains('ghost-house-border')))
           ){
-            console.log('NO WALL LEFT - MOVING LEFT - CHECKING UP AND LEFT')
+            // console.log('NO WALL LEFT - MOVING LEFT - CHECKING UP AND LEFT')
             // then go up, or continue left
             leftDirectionOptions = ['up', 'left' ]
             randomLeftDirection = leftDirectionOptions[Math.floor(Math.random() * leftDirectionOptions.length)]
@@ -398,7 +469,7 @@ function init() {
 
         // if ghost is in the cell with index 391
         if (currentGhostPositions[className] === 391){
-          console.log('391 RIGHT - MOVING RIGHT - CHECKING RIGHT')
+          // console.log('391 RIGHT - MOVING RIGHT - CHECKING RIGHT')
           randomRightDirection = 'right'
         }
 
@@ -410,7 +481,7 @@ function init() {
           && !(cells[currentGhostPositions[className] + width].classList.contains('wall'))
           )
             {
-          console.log('WALL RIGHT - MOVING RIGHT - CHECKING UP, DOWN AND LEFT')
+          // console.log('WALL RIGHT - MOVING RIGHT - CHECKING UP, DOWN AND LEFT')
           rightDirectionOptions = ['up', 'down', 'left']
           randomRightDirection = rightDirectionOptions[Math.floor(Math.random() * rightDirectionOptions.length)]
           } 
@@ -420,7 +491,7 @@ function init() {
             && (cells[currentGhostPositions[className] + width].classList.contains('wall'))
             )
               {
-            console.log('WALL RIGHT - MOVING RIGHT - CHECKING UP AND LEF')
+            // console.log('WALL RIGHT - MOVING RIGHT - CHECKING UP AND LEF')
             rightDirectionOptions = ['up', 'left']
             randomRightDirection = rightDirectionOptions[Math.floor(Math.random() * rightDirectionOptions.length)]
           } 
@@ -430,7 +501,7 @@ function init() {
             && !(cells[currentGhostPositions[className] + width].classList.contains('wall'))
             )
               {
-            console.log('WALL RIGHT - MOVING RIGHT - CHECKING DOWN AND LEFT')
+            // console.log('WALL RIGHT - MOVING RIGHT - CHECKING DOWN AND LEFT')
             rightDirectionOptions = ['down', 'left']
             randomRightDirection  = rightDirectionOptions[Math.floor(Math.random() * rightDirectionOptions.length)]
           } 
@@ -444,7 +515,7 @@ function init() {
           && (!(cells[currentGhostPositions[className] + width].classList.contains('wall') 
           || cells[currentGhostPositions[className] + width].classList.contains('ghost-house-border'))
           )){
-            console.log('NO WALL RIGHT - MOVING RIGHT, DOWN AND LEFT')
+            // console.log('NO WALL RIGHT - MOVING RIGHT, DOWN AND LEFT')
             // then go up, down, or continue right
             rightDirectionOptions  = ['up', 'down', 'right']
             randomRightDirection  = rightDirectionOptions[Math.floor(Math.random() * rightDirectionOptions.length)]
@@ -455,7 +526,7 @@ function init() {
           && ((cells[currentGhostPositions[className] + width].classList.contains('wall')) 
           || (cells[currentGhostPositions[className] + width].classList.contains('ghost-house-border')))
           ){
-            console.log('NO WALL RIGHT - MOVING RIGHT - CHECKING UP AND RIGHT')
+            // console.log('NO WALL RIGHT - MOVING RIGHT - CHECKING UP AND RIGHT')
             // then go up, or continue right
             rightDirectionOptions  = ['up', 'right' ]
             randomRightDirection  = rightDirectionOptions[Math.floor(Math.random() * rightDirectionOptions.length)]
@@ -467,7 +538,7 @@ function init() {
           && !cells[currentGhostPositions[className] + width].classList.contains('ghost-house-border')
           )
               {
-            console.log('NO WALL RIGHT - MOVING RIGHT - CHECKING DOWN AND RIGHT')
+            // console.log('NO WALL RIGHT - MOVING RIGHT - CHECKING DOWN AND RIGHT')
             // then go down, or continue right
             rightDirectionOptions = ['down', 'right']
             randomRightDirection  = rightDirectionOptions[Math.floor(Math.random() * rightDirectionOptions.length)]
@@ -494,7 +565,7 @@ function init() {
           && !(cells[currentGhostPositions[className] + width].classList.contains('ghost-house-border'))
           )
             {
-          console.log('WALL ABOVE - MOVING UP - CHECKING LEFT, RIGHT AND DOWN')
+          // console.log('WALL ABOVE - MOVING UP - CHECKING LEFT, RIGHT AND DOWN')
           upDirectionOptions = ['left', 'right', 'down']
           randomUpDirection = upDirectionOptions[Math.floor(Math.random() * upDirectionOptions.length)]
           } 
@@ -505,7 +576,7 @@ function init() {
           || (cells[currentGhostPositions[className] + width].classList.contains('ghost-house-border')))
           )
             {
-          console.log('WALL ABOVE - MOVING UP - CHECKING LEFT AND RIGHT')
+          // console.log('WALL ABOVE - MOVING UP - CHECKING LEFT AND RIGHT')
           upDirectionOptions = ['left', 'right']
           randomUpDirection = upDirectionOptions[Math.floor(Math.random() * upDirectionOptions.length)]
           } 
@@ -515,7 +586,7 @@ function init() {
             && (cells[currentGhostPositions[className] + 1].classList.contains('wall'))
             )
               {
-            console.log('WALL ABOVE - MOVING UP - CHECKING LEFT AND DOWN')
+            // console.log('WALL ABOVE - MOVING UP - CHECKING LEFT AND DOWN')
             upDirectionOptions = ['left', 'down']
             randomUpDirection = upDirectionOptions[Math.floor(Math.random() * upDirectionOptions.length)]
           } 
@@ -525,7 +596,7 @@ function init() {
             && !(cells[currentGhostPositions[className] + 1].classList.contains('wall'))
             )
               {
-            console.log('WALL ABOVE - MOVING UP - CHECKING DOWN AND RIGHT')
+            // console.log('WALL ABOVE - MOVING UP - CHECKING DOWN AND RIGHT')
             upDirectionOptions = ['down', 'right']
             randomUpDirection = upDirectionOptions[Math.floor(Math.random() * upDirectionOptions.length)]
           } 
@@ -539,7 +610,7 @@ function init() {
           && !(cells[currentGhostPositions[className] + 1].classList.contains('wall'))
           )
             {
-          console.log('NO WALL ABOVE - MOVING UP - CHECKING LEFT, RIGHT AND UP')
+          // console.log('NO WALL ABOVE - MOVING UP - CHECKING LEFT, RIGHT AND UP')
           upDirectionOptions = ['left', 'right', 'up']
           randomUpDirection = upDirectionOptions[Math.floor(Math.random() * upDirectionOptions.length)]
           } 
@@ -549,7 +620,7 @@ function init() {
             && (cells[currentGhostPositions[className] + 1].classList.contains('wall'))
             )
               {
-            console.log('NO WALL ABOVE - MOVING UP - CHECKING LEFT AND UP')
+            // console.log('NO WALL ABOVE - MOVING UP - CHECKING LEFT AND UP')
             upDirectionOptions = ['left', 'up']
             randomUpDirection = upDirectionOptions[Math.floor(Math.random() * upDirectionOptions.length)]
           } 
@@ -559,7 +630,7 @@ function init() {
             && !(cells[currentGhostPositions[className] + 1].classList.contains('wall'))
             )
               {
-            console.log('NO WALL ABOVE - MOVING UP - CHECKING UP AND RIGHT')
+            // console.log('NO WALL ABOVE - MOVING UP - CHECKING UP AND RIGHT')
             upDirectionOptions = ['up', 'right']
             randomUpDirection = upDirectionOptions[Math.floor(Math.random() * upDirectionOptions.length)]
           } else {
@@ -568,9 +639,6 @@ function init() {
         }
       
         randomDirection = randomUpDirection
-        console.log('finally proceeding with', randomDirection)
-        
-
       }
 
       //GHOST MOVING DOWN
@@ -585,7 +653,7 @@ function init() {
           && (cells[currentGhostPositions[className] - width].classList.contains('wall'))
           )
             {
-          console.log('WALL BELOW - MOVING DOWN - CHECKING LEFT AND RIGHT')
+          // console.log('WALL BELOW - MOVING DOWN - CHECKING LEFT AND RIGHT')
           downDirectionOptions = ['left', 'right']
           randomDownDirection = downDirectionOptions[Math.floor(Math.random() * downDirectionOptions.length)]
           } 
@@ -596,7 +664,7 @@ function init() {
           && !(cells[currentGhostPositions[className] - width].classList.contains('wall'))
           )
             {
-          console.log('WALL BELOW - MOVING DOWN - CHECKING LEFT, RIGHT AND UP')
+          // console.log('WALL BELOW - MOVING DOWN - CHECKING LEFT, RIGHT AND UP')
           downDirectionOptions = ['left', 'right', 'up']
           randomDownDirection = downDirectionOptions[Math.floor(Math.random() * downDirectionOptions.length)]
           }
@@ -607,7 +675,7 @@ function init() {
             && (cells[currentGhostPositions[className] + 1].classList.contains('wall'))
             )
               {
-            console.log('WALL BELOW - MOVING DOWN - CHECKING LEFT AND UP')
+            // console.log('WALL BELOW - MOVING DOWN - CHECKING LEFT AND UP')
             downDirectionOptions = ['left', 'up']
             randomDownDirection = downDirectionOptions[Math.floor(Math.random() * downDirectionOptions.length)]
           } 
@@ -617,11 +685,11 @@ function init() {
             && !(cells[currentGhostPositions[className] + 1].classList.contains('wall'))
             )
               {
-            console.log('WALL BELOW - MOVING DOWN - CHECKING UP AND RIGHT')
+            // console.log('WALL BELOW - MOVING DOWN - CHECKING UP AND RIGHT')
             downDirectionOptions = ['up', 'right']
             randomDownDirection = downDirectionOptions[Math.floor(Math.random() * downDirectionOptions.length)]
           } 
-
+        
         } 
         // IF THERE IS NO WALL BELOW
         else if (!cells[currentGhostPositions[className] + width].classList.contains('wall') && !cells[currentGhostPositions[className] + width].classList.contains('ghost-house-border')){
@@ -631,7 +699,7 @@ function init() {
           && !(cells[currentGhostPositions[className] + 1].classList.contains('wall'))
           )
             {
-            console.log('NO WALL BELOW - MOVING DOWN - CHECKING LEFT, RIGHT AND DOWN')
+            // console.log('NO WALL BELOW - MOVING DOWN - CHECKING LEFT, RIGHT AND DOWN')
             downDirectionOptions = ['left', 'right', 'down']
             randomDownDirection = downDirectionOptions[Math.floor(Math.random() * downDirectionOptions.length)]
             } 
@@ -641,7 +709,7 @@ function init() {
             && (cells[currentGhostPositions[className] + 1].classList.contains('wall'))
             )
             {
-              console.log('NO WALL BELOW - MOVING DOWN - CHECKING LEFT AND DOWN')
+              // console.log('NO WALL BELOW - MOVING DOWN - CHECKING LEFT AND DOWN')
               downDirectionOptions = ['left', 'down']
               randomDownDirection = downDirectionOptions[Math.floor(Math.random() * downDirectionOptions.length)]
             } 
@@ -651,7 +719,7 @@ function init() {
             && !(cells[currentGhostPositions[className] + 1].classList.contains('wall'))
             )
             {
-              console.log('NO WALL BELOW - MOVING DOWN - CHECKING DOWN AND RIGHT')
+              // console.log('NO WALL BELOW - MOVING DOWN - CHECKING DOWN AND RIGHT')
               downDirectionOptions = ['down', 'right']
               randomDownDirection = downDirectionOptions[Math.floor(Math.random() * downDirectionOptions.length)]
             } 
@@ -664,14 +732,16 @@ function init() {
 
       }
 
-
+    // update ghost direction
     currentGhostDirection[className] = randomDirection
-    console.log('currentGhostDirection[blinky]', currentGhostDirection[className])
+
     
+    if (isVulnerable[className] === false) {
       if (randomDirection === 'left' && currentGhostPositions[className] === 364){
         cells[currentGhostPositions[className]].classList.remove(className)
         currentGhostPositions[className] = 391
         cells[currentGhostPositions[className]].classList.add(className)
+
       } else if (randomDirection === 'left'){
         cells[currentGhostPositions[className]].classList.remove(className)
         currentGhostPositions[className]--
@@ -681,6 +751,7 @@ function init() {
         cells[currentGhostPositions[className]].classList.remove(className)
         currentGhostPositions[className] = 364
         cells[currentGhostPositions[className]].classList.add(className)
+
       } else if (randomDirection === 'right'){
         cells[currentGhostPositions[className]].classList.remove(className)
         currentGhostPositions[className]++
@@ -690,132 +761,394 @@ function init() {
         cells[currentGhostPositions[className]].classList.remove(className)
         currentGhostPositions[className] -= width
         cells[currentGhostPositions[className]].classList.add(className)
+
       } else if (randomDirection === 'down'){
         cells[currentGhostPositions[className]].classList.remove(className)
         currentGhostPositions[className] += width
         cells[currentGhostPositions[className]].classList.add(className)
       }
+      checkGhostCollisions()
 
-      console.log('currentGhostPositions[className]', currentGhostPositions[className])
+    } else if (isVulnerable[className] === true) {
+      if (randomDirection === 'left' && currentGhostPositions[className] === 364){
+        cells[currentGhostPositions[className]].classList.remove(className)
+        cells[currentGhostPositions[className]].classList.remove('vulnerable-ghost')
+        currentGhostPositions[className] = 391
+        cells[currentGhostPositions[className]].classList.add(className)
+        cells[currentGhostPositions[className]].classList.add('vulnerable-ghost')
+
+      } else if (randomDirection === 'left'){
+        cells[currentGhostPositions[className]].classList.remove(className)
+        cells[currentGhostPositions[className]].classList.remove('vulnerable-ghost')
+        currentGhostPositions[className]--
+        cells[currentGhostPositions[className]].classList.add(className)
+        cells[currentGhostPositions[className]].classList.add('vulnerable-ghost')
+
+      } else if (randomDirection === 'right' && currentGhostPositions[className] === 391){
+        cells[currentGhostPositions[className]].classList.remove(className)
+        cells[currentGhostPositions[className]].classList.remove('vulnerable-ghost')
+        currentGhostPositions[className] = 364
+        cells[currentGhostPositions[className]].classList.add(className)
+        cells[currentGhostPositions[className]].classList.add('vulnerable-ghost')
+
+      } else if (randomDirection === 'right'){
+        cells[currentGhostPositions[className]].classList.remove(className)
+        cells[currentGhostPositions[className]].classList.remove('vulnerable-ghost')
+        currentGhostPositions[className]++
+        cells[currentGhostPositions[className]].classList.add(className)
+        cells[currentGhostPositions[className]].classList.add('vulnerable-ghost')
+
+      } else if (randomDirection === 'up'){
+        cells[currentGhostPositions[className]].classList.remove(className)
+        cells[currentGhostPositions[className]].classList.remove('vulnerable-ghost')
+        currentGhostPositions[className] -= width
+        cells[currentGhostPositions[className]].classList.add(className)
+        cells[currentGhostPositions[className]].classList.add('vulnerable-ghost')
+
+      } else if (randomDirection === 'down'){
+        cells[currentGhostPositions[className]].classList.remove(className)
+        cells[currentGhostPositions[className]].classList.remove('vulnerable-ghost')
+        currentGhostPositions[className] += width
+        cells[currentGhostPositions[className]].classList.add(className)
+        cells[currentGhostPositions[className]].classList.add('vulnerable-ghost')
+      }
+      checkGhostCollisions()
+    }
+
+    ghostClassName = className
+
     }, 220)
 
   }
 
   function moveFromGhostHouse(className){
-    if (className === 'pinky' || className === 'inky'){
-        // (`${className}StartIndex`)
-      setTimeout(() => {
-        clearInterval (ghostHouseTimer[className])
-      }, 2001)
 
-      setTimeout(() => {
-        moveGhosts (className)
-      }, 2001)
+    if (className === 'pinky' || className === 'inky'){
+
+      ghostHouseTimeouts = []
+    
+      for (let i = 0; i < ghostHouseTimeouts.length; i++) {
+        clearTimeout(ghostHouseTimeouts[i])
+      }
+
+      ghostHouseTimeouts.push(setTimeout(() => {
+        clearInterval(ghostHouseTimer[className])
+      }, 2001))
+  
+      ghostHouseTimeouts.push(setTimeout(() => {
+        moveGhosts(className)
+      }, 2001))
+  
 
       ghostHouseTimer[className] = setInterval(() => {
-        cells[currentGhostPositions[className]].classList.remove(className)
+        cells[currentGhostPositions[className]]?.classList.remove(className)
         currentGhostPositions[className] -= width
-        cells[currentGhostPositions[className]].classList.add(className)
+        cells[currentGhostPositions[className]]?.classList.add(className)
       }, 500)
 
         // cells[currentGhostPositions[className]+1]
 
       } else if (className === 'clyde'){
-      cells[currentGhostPositions[className]].classList.remove(className)
+      cells[currentGhostPositions[className]]?.classList.remove(className)
       currentGhostPositions[className] -= 1
-      cells[currentGhostPositions[className]].classList.add(className)
 
-      setTimeout(() => {
-        clearInterval (ghostHouseTimer[className])
-      }, 2001)
+      cells[currentGhostPositions[className]]?.classList.add(className)
 
-      setTimeout(() => {
-        moveGhosts (className)
-      }, 2001)
-
-
+      ghostHouseTimeouts.push(setTimeout(() => {
+        clearInterval(ghostHouseTimer[className])
+      }, 2001))
+  
+      ghostHouseTimeouts.push(setTimeout(() => {
+        moveGhosts(className)
+      }, 2001))
 
       ghostHouseTimer[className] = setInterval(() => {
-        cells[currentGhostPositions[className]].classList.remove(className)
+        cells[currentGhostPositions[className]]?.classList.remove(className)
         currentGhostPositions[className] -= width
-        cells[currentGhostPositions[className]].classList.add(className)
+        cells[currentGhostPositions[className]]?.classList.add(className)
       }, 500)
 
-}
-
-// 
-
-    // choose random direction for the ghosts and make sure they avoid going over walls
-    // change the position of the ghost based on that direction
-
-    // --- SET INTERVAL TIMER
-
-
-  function addFruit(){
-    // Make sure that the appearance of fruit does not exceed a limit of 2 fruits per round
-    // set a timer for the fruit to appear
-    // choose a random fruit
-    // the fruit appears on the screen
-    // Set a timer/timeOut for how long the fruit will remain on the screen
-    // if the timer has expired, remove the fruit
-  }
-
-  function checkPelletCollisions(){
-    // check if pac-man has the same position as a pellet
-    //    if yes,remove the pellet and add points
-  }
-
-  function checkPowerPelletCollisions(){
-    // check if pac-man has the same position as a power pellet
-    //    if yes, remove the power pellet and add points
-  }
-
-  function checkGhostCollisions(){
-    // check for collision with ghosts
-    // if the ghosts are regular, pac-man loses a life 
-    // if the ghosts are regular, pac-man and the ghosts go back to the starting postion
-    // if the ghosts are vulnerable, points are added
-    // if the ghosts are vulnerable, the ghost is removed
-
-
-    
-    // ---> add check end game funciton --> call it every time there is a collision
-  }
-
-  function checkFruitCollisions(){
-    // if the fruit is eaten by pac-man, then increase the points
-  }
-
-  function checkEnd(){
-    const timerEndCheck = setInterval(() => {
-      if (livesLeft === 0) {
-        clearInterval(timerEndCheck)
-        gameOverAlert()
-      }
-    }, 15)
-  }
-
-  function gameOverAlert(){
-    const answer = prompt('Game Over! Would you like to play another game?')
-    // ask the player if they want to play again
-    // if yes, clear everthing()
-    if (answer === 'yes'){
-      clearAll()
-      gamePlay()
-    } else if (answer === 'no') {
-      prompt('Thank you for playing!')
     }
   }
+  
+    function addFruit(){
 
-  function clearAll(){
-    // clear number of lives
-    // clear score
-    // clear fruit collected
-  }
+      fruitTimeouts = []
+    
+      for (let i = 0; i < fruitTimeouts.length; i++) {
+        clearTimeout(fruitTimeouts[i])
+      }
 
+      // add a cherry after 20 seconds
+      setTimeout(() => {
+        cells[fruitIndex].classList.add('cherry')
+      }, 20*1000)
+
+      setTimeout(() => {
+        cells[fruitIndex].classList.remove('cherry')
+      }, 35*1000)
+
+      // add another cherry after 60 seconds
+      setTimeout(() => {
+        cells[fruitIndex].classList.add('cherry')
+      }, 60*1000)
+
+      setTimeout(() => {
+        cells[fruitIndex].classList.remove('cherry')
+      }, 75*1000)
+    }
+  
+    function checkPelletCollisions(){
+      // check if pac-man has the same position as a pellet
+      if (cells[currentPosition].classList.contains('pellet')){
+        cells[currentPosition].classList.remove('pellet')
+        score += 1
+        scoreSpan.innerHTML = score
+        pelletsCount++
+        checkWin()
+      }
+      }
+  
+    function checkPowerPelletCollisions(){
+      // check if pac-man has the same position as a power pellet
+      if (cells[currentPosition].classList.contains('power-pellet')){
+        cells[currentPosition].classList.remove('power-pellet')
+        score += powerPelletPoints[powerPelletIndex]
+        powerPelletIndex++
+        scoreSpan.innerHTML = score
+        const audio = new Audio('sounds/pacman_chomp.wav')
+        audio.play()
+        makeGhostsVulnerable()
+
+      }
+
+    }
+  
+    function makeGhostsVulnerable(){
+
+      // make all ghosts vulnerable once pac-man eats a power pellet
+  
+        for (let i = 0; i < ghostNames.length; i++){
+          clearInterval(timerGhosts[ghostNames[i]])
+          clearInterval(ghostHouseTimer[ghostNames[i]])
+
+          cells[currentGhostPositions[ghostNames[i]]]?.classList.add('vulnerable-ghost')
+          cells[currentGhostPositions[ghostNames[i]]]?.classList.add(vulnerableGhostNames[i])
+          
+          isVulnerable[vulnerableGhostNames[i]] = true
+
+          currentGhostPositions[vulnerableGhostNames[i]] = currentGhostPositions[ghostNames[i]]
+          currentGhostDirection[vulnerableGhostNames[i]] = currentGhostDirection[ghostNames[i]]
+          cells[currentGhostPositions[ghostNames[i]]]?.classList.remove(ghostNames[i])
+          moveGhosts(vulnerableGhostNames[i])
+        }
+
+        // undo changes after 8 seconds
+        vulnerableTimeout = setTimeout(() => {
+          for (let i = 0; i < ghostNames.length; i++) {
+          
+            if (isVulnerable[vulnerableGhostNames[i]] === true ) {
+              clearInterval(timerGhosts[vulnerableGhostNames[i]])
+
+              cells[currentGhostPositions[vulnerableGhostNames[i]]].classList.remove('vulnerable-ghost')
+              cells[currentGhostPositions[vulnerableGhostNames[i]]].classList.add(ghostNames[i])
+              currentGhostPositions[ghostNames[i]] = currentGhostPositions[vulnerableGhostNames[i]]
+              currentGhostDirection[ghostNames[i]] = currentGhostDirection[vulnerableGhostNames[i]]
+              cells[currentGhostPositions[vulnerableGhostNames[i]]].classList.remove(vulnerableGhostNames[i])
+
+              moveGhosts(ghostNames[i])
+            }
+          }
+        }, 8 * 1000)
+
+    }
+
+    function checkFruitCollisions(){
+      // if the fruit is eaten by pac-man, then increase the points
+
+      if (cells[currentPosition].classList.contains('cherry')){
+        const audio = new Audio('sounds/pacman_eatfruit.wav')
+        audio.play()
+        cells[currentPosition].classList.remove('cherry')
+        score += cherryPoints
+        const fruitImg = document.createElement('img')
+        fruitImg.src = 'assets/cherry.webp'
+        fruitImg.alt = 'cherry'
+        fruitImg.classList.add('fruit-image')
+        fruitSpan.appendChild(fruitImg)
+      }
+    }
+
+    function checkGhostCollisions(){
+      // check for collision with ghosts
+    
+      // check if the ghosts are regular
+      if (cells[currentPosition].classList.contains('pac-man') 
+      && (cells[currentPosition].classList.contains('blinky')
+      || cells[currentPosition].classList.contains('inky')
+      || cells[currentPosition].classList.contains('pinky')
+      || cells[currentPosition].classList.contains('clyde')))
+      {
+        const audio = new Audio('sounds/pacman_death.wav')
+        audio.play()
+
+        cells[currentPosition].classList.remove('pac-man')
+        cells[currentPosition].classList.remove('move-right', 'move-left', 'move-up', 'move-down')
+
+        livesLeft -= 1
+
+        //select all elements that have the class name pac-man-lives-image and are descendants of the element stored in the livesSpan variable
+        const pacmanImgs = livesSpan.querySelectorAll('.pac-man-lives-image')
+
+        //remove the last pacmanImg element from livesSpan
+        pacmanImgs[pacmanImgs.length - 1].remove()
+
+        if (livesLeft > 0){
+          startOver()
+
+        } else {
+          gameOverAlert()
+        }
+
+      // check if the ghosts are vulnerable
+      } else if (cells[currentPosition].classList.contains('pac-man') 
+      && (cells[currentPosition].classList.contains('vulnerableblinky')
+      || cells[currentPosition].classList.contains('vulnerableinky')
+      || cells[currentPosition].classList.contains('vulnerablepinky')
+      || cells[currentPosition].classList.contains('vulnerableclyde')))
+      { 
+        if (cells[currentPosition].classList.contains('vulnerableblinky')){
+          eatVulnerableGhost('vulnerableblinky')
+        } else if (cells[currentPosition].classList.contains('vulnerableinky')){
+          eatVulnerableGhost('vulnerableinky')
+        } else if (cells[currentPosition].classList.contains('vulnerablepinky')){
+          eatVulnerableGhost('vulnerablepinky')
+        } else if (cells[currentPosition].classList.contains('vulnerableclyde')){
+          eatVulnerableGhost('vulnerableclyde')
+      }
+
+      const audio = new Audio('sounds/pacman_eatghost.wav')
+        audio.play()
+
+      score += vulnerableGhostPoints[vulnerableGhostIndex]
+        vulnerableGhostIndex++
+
+    }
+    }
+
+    function eatVulnerableGhost(className){
+  
+      cells[currentGhostPositions[className]]?.classList.remove('vulnerable-ghost')
+      
+      if (cells[currentGhostPositions[className]]?.classList.contains('vulnerableblinky')){
+        //clear all timers so that there are no reduntant ghost left
+        clearInterval(ghostHouseTimer[className])
+        clearInterval(timerGhosts[className])
+        originalClassName = 'blinky'
+        // bring the ghost back to ghost house
+        currentGhostPositions[originalClassName] = ghostStartIndexes[originalClassName]
+        
+        cells[currentGhostPositions[originalClassName]]?.classList.add(originalClassName)
+        // remove the vulnerableblinky class
+        cells[currentGhostPositions[className]]?.classList.remove('vulnerableblinky')
+
+        isVulnerable['vulnerableblinky'] = false
+        moveGhosts(originalClassName)
+
+      } else if (cells[currentGhostPositions[className]]?.classList.contains('vulnerableinky')){
+        clearInterval(ghostHouseTimer[className])
+        clearInterval(timerGhosts[className])
+        originalClassName = 'inky'
+
+        currentGhostPositions[originalClassName] = ghostStartIndexes[originalClassName]
+        cells[currentGhostPositions[originalClassName]]?.classList.add(originalClassName)
+        cells[currentGhostPositions[className]]?.classList.remove('vulnerableinky')
+        moveFromGhostHouse(originalClassName)
+        isVulnerable['vulnerableinky'] = false
+
+      } else if (cells[currentGhostPositions[className]]?.classList.contains('vulnerablepinky')){
+        clearInterval(ghostHouseTimer[className])
+        clearInterval(timerGhosts[className])
+        originalClassName = 'pinky'
+        currentGhostPositions[originalClassName] = ghostStartIndexes[originalClassName]
+        cells[currentGhostPositions[originalClassName]]?.classList.add(originalClassName)
+        cells[currentGhostPositions[className]]?.classList.remove('vulnerablepinky')
+        moveFromGhostHouse(originalClassName)
+        isVulnerable['vulnerablepinky'] = false
+
+      }else if (cells[currentGhostPositions[className]]?.classList.contains('vulnerableclyde')){
+        clearInterval(ghostHouseTimer[className])
+        clearInterval(timerGhosts[className])
+        originalClassName = 'clyde'
+        currentGhostPositions[originalClassName] = ghostStartIndexes[originalClassName]
+        cells[currentGhostPositions[originalClassName]]?.classList.add(originalClassName)
+        cells[currentGhostPositions[className]]?.classList.remove('vulnerableclyde')
+        moveFromGhostHouse(originalClassName)
+        isVulnerable['vulnerableclyde'] = false
+      }
+
+    }
+
+    function checkEnd(){
+      // check if the game has ended
+      const timerEndCheck = setInterval(() => {
+        if (livesLeft === 0) {
+          clearInterval(timerEndCheck)
+          gameOverAlert()
+        }
+      }, 15)
+    }
+  
+    function gameOverAlert(){
+      // display on the screen that the game has ended and clear all intervals
+      for (let i = 0; i < ghostNames.length; i++){
+      
+        clearInterval(timerGhosts[ghostNames[i]])
+        clearInterval(ghostHouseTimer[ghostNames[i]])
+        clearInterval(timerGhosts[vulnerableGhostNames[i]])
+        clearInterval(ghostHouseTimer[vulnerableGhostNames[i]])
+      }
+      document.querySelector('.game-over').style.display = 'block';
+    }
+
+    function startOver(){
+      // start from the beggining once pac-man is eaten by a ghost
+
+      const ghostStartIndexesArray = [293, 405, 406, 407]
+
+      cells[currentPosition].classList.remove('pac-man')
+      cells[currentPosition].classList.remove('move-right', 'move-left', 'move-up', 'move-down')
+      cells[pacmanStartIndex].classList.add('pac-man')
+      currentPosition = pacmanStartIndex 
+      clearInterval(timer)
+
+
+      // erase the fruit if it is displayed
+      if (cells[fruitIndex].classList.contains('cherry')){
+        cells[fruitIndex].classList.remove('cherry')
+      }
+
+    }
+
+    function checkWin(){
+      // check if the game is won
+      if (pelletsCount === (pelletsIndex.length - 4)){
+        setTimeout(() => {
+          document.querySelector('.you-won').style.display = 'block';
+        }, 220)
+
+        for (let i = 0; i < ghostNames.length; i++){
+          
+          clearInterval(timerGhosts[ghostNames[i]])
+          clearInterval(ghostHouseTimer[ghostNames[i]])
+          clearInterval(timerGhosts[vulnerableGhostNames[i]])
+          clearInterval(ghostHouseTimer[vulnerableGhostNames[i]])
+    
+      }
+    }
+    }
+    
   // ! Events
-
-  }
   
   start.addEventListener('click', createGrid)
 

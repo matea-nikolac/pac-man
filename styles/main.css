@@ -131,6 +131,10 @@ h2{
   margin-top: 10px;
 }
 
+.lives-paragraph{
+  margin-top: 20px;
+}
+
 /* MAZE */
 
 .wall {
@@ -212,3 +216,53 @@ div.ghost-house-border{
   background-size: 100%;
   background-position: center;
 }
+
+.vulnerable-ghost{
+  background-image: url(../assets/vulnerable-ghost.png); 
+  background-size: 100%;
+  background-position: center;
+}
+
+/* FRUIT */
+
+.cherry {
+  background-image: url(../assets/cherry.webp); 
+  background-size: 100%;
+  background-position: center;
+}
+
+.fruit-image {
+  width: 20px;
+}
+
+/* LIVES */
+
+.pac-man-lives-image {
+  width: 20px;
+}
+
+.lives * {
+  margin-left: 10px;
+}
+
+/* GAME OVER and GAME WON */
+
+.game-over, .you-won {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(70%, 50%);
+  z-index: 999;
+  color: rgb(243, 236, 236);
+  -webkit-text-stroke: 1.2px black;
+  /* text-shadow: 2px 2px white; */
+}
+.you-won{
+  margin-left: 100px;
+}
+
+.game-over{
+  margin-left: 45px;
+}
+
