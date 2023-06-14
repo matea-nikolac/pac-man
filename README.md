@@ -15,13 +15,13 @@ CSS, HTML, Javascript
 
 ## Brief
 
-### Requirements
+#### Requirements
 
 * The player should be able to clear at least one board
 * The player's score should be displayed at the end of the game
 * Be built on a grid: do not use HTML Canvas for this
 
-### Suggested enhancements
+#### Suggested enhancements
 
 * Responsive design
 * Each board gets more difficult
@@ -29,11 +29,11 @@ CSS, HTML, Javascript
 
 ### Challenges
 
-The biggest challenge here is the logic which moves the ghosts. While their movement may appear random, they are always moving toward Pac Man, who is himself being moved by the player.
+The biggest challenge here is the logic that moves the ghosts. While their movement may appear random, they are always moving toward Pac Man, who is himself being moved by the player.
 
 ## Planning
 
-The Pac-Man project is a web-based game created using CSS, HTML, and JavaScript. Before starting the coding process, a wireframe was designed using Excalidraw. The wireframe consists of two panels: the left panel includes the title, game rules, and a start button, while the right panel contains the game grid where the Pac-Man, ghosts, pellets, power-pellets, walls, and fruit will be displayed. Additionally, the right panel also shows indicators for the remaining lives, collected fruit, and the player's score.
+The Pac-Man project is a web-based game created using CSS, HTML, and JavaScript. Before starting the coding process, a wireframe was designed using Excalidraw. The wireframe consists of two panels: the left panel includes the title, game rules, and a start button, while the right panel contains the game grid where the Pac-Man, ghosts, pellets, power pellets, walls, and fruit will be displayed. Additionally, the right panel also shows indicators for the remaining lives, collected fruit, and the player's score.
 
 <img width="1197" alt="Screenshot 2023-06-06 at 15 52 02" src="https://github.com/matea-nikolac/pac-man/assets/62067357/133ef4cc-6ee7-46fa-b869-e3d31eb17291">
 
