@@ -15,19 +15,19 @@ CSS, HTML, Javascript
 
 ## Brief
 
-#### Requirements
+### Requirements
 
 * The player should be able to clear at least one board
 * The player's score should be displayed at the end of the game
 * Be built on a grid: do not use HTML Canvas for this
 
-#### Suggested enhancements
+### Suggested enhancements
 
 * Responsive design
 * Each board gets more difficult
 * Persistent leaderboard using localStorage
 
-#### Challenges
+### Challenges
 
 The biggest challenge here is the logic which moves the ghosts. While their movement may appear random, they are always moving toward Pac Man, who is himself being moved by the player.
 
