@@ -10,7 +10,7 @@ https://matea-nikolac.github.io/pac-man/
 ## Timeframe & Working Team (Solo/Pair/Group)
 This was a solo project, completed within a one-week timeframe.
 
-##Technologies Used
+## Technologies Used
 CSS, HTML, Javascript
 
 ## Brief
