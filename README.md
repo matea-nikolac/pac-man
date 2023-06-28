@@ -27,10 +27,6 @@ CSS, HTML, Javascript
 * Each board gets more difficult
 * Persistent leaderboard using localStorage
 
-### Challenges
-
-The biggest challenge here is the logic that moves the ghosts. While their movement may appear random, they are always moving toward Pac Man, who is himself being moved by the player.
-
 ## Planning
 
 The Pac-Man project is a web-based game created using CSS, HTML, and JavaScript. Before starting the coding process, a wireframe was designed using Excalidraw. The wireframe consists of two panels: the left panel includes the title, game rules, and a start button, while the right panel contains the game grid where the Pac-Man, ghosts, pellets, power pellets, walls, and fruit will be displayed. Additionally, the right panel also shows indicators for the remaining lives, collected fruit, and the player's score.
