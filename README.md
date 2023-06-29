@@ -11,7 +11,9 @@ https://matea-nikolac.github.io/pac-man/
 This was a solo project, completed within a one-week timeframe.
 
 ## Technologies Used
-CSS, HTML, Javascript
+* Javascript
+* CSS
+* HTML
 
 ## Brief
 
