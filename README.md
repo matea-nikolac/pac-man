@@ -172,4 +172,4 @@ I am thrilled to have successfully utilized JavaScript, HTML, and CSS to create 
 Occasionally, a rare bug occurs where the ghosts end up trapped within walls, navigating within them before eventually returning to the corridors. The cause of this anomaly is yet to be determined, but potential factors could include overlapping time intervals or an uncovered movement scenario. Further investigation is required to pinpoint and address the underlying issue.
 
 ## Future Improvements
-Given the complexity of the current ghost movement implementation,it would be worth exploring if there are simpler approaches that can enhance clarity and efficiency while achieving the same functionality.
+Given the complexity of the current ghost movement implementation, it would be worth exploring if there are simpler approaches that can enhance clarity and efficiency while achieving the same functionality.
