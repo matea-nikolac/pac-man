@@ -2,7 +2,7 @@
 <img width="1300" alt="Screenshot 2023-06-06 at 15 28 43" src="https://github.com/matea-nikolac/pac-man/assets/62067357/04872a29-c83b-4aab-8444-f3e68152a95b">
 
 ## Description
-The objective of this project was to develop a game inspired by Pac-man, utilizing only HTML, CSS, and JavaScript.
+This was my first project for the General Assembly's Software Engineering Immersive course. The objective of the project was to develop a game inspired by Pac-man, utilizing only HTML, CSS, and JavaScript.
 
 ## Deployment link
 https://matea-nikolac.github.io/pac-man/
